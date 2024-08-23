@@ -1,0 +1,456 @@
+{
+	"info": {
+		"_postman_id": "e1a2f9a7-3bf7-4945-8ca0-501c7858f095",
+		"name": "Simple book API",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "31548348"
+	},
+	"item": [
+		{
+			"name": "Register a client",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Test if status code is 200 or 201\", function () {\r",
+							"    pm.expect(pm.response.code).to.be.oneOf([200, 201]);\r",
+							"\r",
+							"    // Store the accessToken value in the environment variable\r",
+							"    pm.environment.set(\"accessToken\", jsonResponse.accessToken)\r",
+							"\r",
+							"    // Retrieve the value of the environment variable\r",
+							"    let accessTokenValue = pm.environment.get(\"accessToken\");\r",
+							"\r",
+							"    // Set the collection variable with the retrieved value\r",
+							"    pm.collectionVariables.set(\"accessTokenCollectionVar\", accessTokenValue);\r",
+							"    });\r",
+							"\r",
+							"    pm.test(\"Test is response time is less than 3 seconds\", function () {\r",
+							"    pm.expect(pm.response.responseTime).to.be.below(3000);\r",
+							"});\r",
+							"\r",
+							"\r",
+							"\r",
+							"\r",
+							"\r",
+							"\r",
+							""
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				},
+				{
+					"listen": "prerequest",
+					"script": {
+						"exec": [
+							"let incrementEmail = pm.environment.get(\"emailIncrement\")\r",
+							"\r",
+							"let email = \"jeremyo+\" + incrementEmail + \"@gmail.mouse.com\"\r",
+							"\r",
+							"// Store email in the environment to be use in request body\r",
+							"pm.environment.set(\"email\", email)\r",
+							"\r",
+							"// Increment it by 1 each request\r",
+							"incrementEmail++\r",
+							"\r",
+							"// Store the incremented value in the environment variable, like updating it\r",
+							"pm.environment.set(\"emailIncrement\", incrementEmail)\r",
+							"\r",
+							""
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n   \"clientName\": \"{{username}}\",\r\n   \"clientEmail\": \"{{email}}\"\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{baseUrl}}/api-clients/",
+					"host": [
+						"{{baseUrl}}"
+					],
+					"path": [
+						"api-clients",
+						""
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Check book status",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Status code is 200\", () => {\r",
+							"    pm.response.to.have.status(200)\r",
+							"})\r",
+							"\r",
+							"// Verify if the response is array\r",
+							"pm.test(\"Test if the response is array\", () => {\r",
+							"    pm.expect(jsonResponse).to.be.an(\"array\")\r",
+							"})"
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{baseUrl}}/books",
+					"host": [
+						"{{baseUrl}}"
+					],
+					"path": [
+						"books"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Get single book",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Status code is 200\", function () {\r",
+							"    pm.response.to.have.status(200);\r",
+							"});\r",
+							"\r",
+							"// Verify test data of each details of the response\r",
+							"pm.test(\"Test if details is in correct data type\", () => {\r",
+							"    pm.expect(jsonResponse.id).to.be.a(\"number\")\r",
+							"    pm.expect(jsonResponse.name).to.be.a(\"string\")\r",
+							"    pm.expect(jsonResponse.author).to.be.a(\"string\")\r",
+							"    pm.expect(jsonResponse.type).to.be.a(\"string\")\r",
+							"    pm.expect(jsonResponse.price).to.be.a(\"number\")\r",
+							"    pm.expect(jsonResponse[\"current-stock\"]).to.be.a(\"number\")\r",
+							"    pm.expect(jsonResponse.available).to.be.a(\"boolean\")\r",
+							"})\r",
+							"\r",
+							"// Counting the number of properties in the object\r",
+							"let numberOfProperties = Object.keys(jsonResponse).length;\r",
+							"\r",
+							"// Verify if the result is unique and one\r",
+							"pm.test(\"Test if the response length is one\", () => {\r",
+							"    pm.expect(numberOfProperties).to.equal(7)\r",
+							"})\r",
+							"\r",
+							"\r",
+							"\r",
+							"\r",
+							"\r",
+							"\r",
+							"\r",
+							""
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{baseUrl}}/books/:orderId",
+					"host": [
+						"{{baseUrl}}"
+					],
+					"path": [
+						"books",
+						":orderId"
+					],
+					"variable": [
+						{
+							"key": "orderId",
+							"value": "{{bookId}}"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Order a book",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Status code is 200\", function () {\r",
+							"    pm.response.to.have.status(200);\r",
+							"});\r",
+							"\r",
+							"// Verify test data of each details of the response\r",
+							"pm.test(\"Test if details is in correct data type\", () => {\r",
+							"    pm.expect(jsonResponse.id).to.be.a(\"number\")\r",
+							"    pm.expect(jsonResponse.name).to.be.a(\"string\")\r",
+							"    pm.expect(jsonResponse.author).to.be.a(\"string\")\r",
+							"    pm.expect(jsonResponse.type).to.be.a(\"string\")\r",
+							"    pm.expect(jsonResponse.price).to.be.a(\"number\")\r",
+							"    pm.expect(jsonResponse[\"current-stock\"]).to.be.a(\"number\")\r",
+							"    pm.expect(jsonResponse.available).to.be.a(\"boolean\")\r",
+							"})\r",
+							"\r",
+							"// Counting the number of properties in the object\r",
+							"let numberOfProperties = Object.keys(jsonResponse).length;\r",
+							"\r",
+							"// Verify if the result is unique and one\r",
+							"pm.test(\"Test if the response length is one\", () => {\r",
+							"    pm.expect(numberOfProperties).to.equal(7)\r",
+							"})\r",
+							"\r",
+							"\r",
+							"\r",
+							"\r",
+							"\r",
+							"\r",
+							"\r",
+							""
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"bookId\": {{bookId}},\r\n    \"customerName\": \"{{username}}\"\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{baseUrl}}/orders",
+					"host": [
+						"{{baseUrl}}"
+					],
+					"path": [
+						"orders"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Update a book",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Status code is 200\", function () {\r",
+							"    pm.response.to.have.status(200);\r",
+							"});\r",
+							"\r",
+							"// Verify test data of each details of the response\r",
+							"pm.test(\"Test if details is in correct data type\", () => {\r",
+							"    pm.expect(jsonResponse.id).to.be.a(\"number\")\r",
+							"    pm.expect(jsonResponse.name).to.be.a(\"string\")\r",
+							"    pm.expect(jsonResponse.author).to.be.a(\"string\")\r",
+							"    pm.expect(jsonResponse.type).to.be.a(\"string\")\r",
+							"    pm.expect(jsonResponse.price).to.be.a(\"number\")\r",
+							"    pm.expect(jsonResponse[\"current-stock\"]).to.be.a(\"number\")\r",
+							"    pm.expect(jsonResponse.available).to.be.a(\"boolean\")\r",
+							"})\r",
+							"\r",
+							"// Counting the number of properties in the object\r",
+							"let numberOfProperties = Object.keys(jsonResponse).length;\r",
+							"\r",
+							"// Verify if the result is unique and one\r",
+							"pm.test(\"Test if the response length is one\", () => {\r",
+							"    pm.expect(numberOfProperties).to.equal(7)\r",
+							"})\r",
+							"\r",
+							"\r",
+							"\r",
+							"\r",
+							"\r",
+							"\r",
+							"\r",
+							""
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				}
+			],
+			"request": {
+				"method": "PATCH",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"customerName\": \"John\"\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{baseUrl}}/orders/:orderId",
+					"host": [
+						"{{baseUrl}}"
+					],
+					"path": [
+						"orders",
+						":orderId"
+					],
+					"variable": [
+						{
+							"key": "orderId",
+							"value": "{{orderId}}"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Delete a book",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"// pm.test(\"Status code is 200\", function () {\r",
+							"//     pm.response.to.have.status(200);\r",
+							"// });\r",
+							"\r",
+							"// // Verify test data of each details of the response\r",
+							"// pm.test(\"Test if details is in correct data type\", () => {\r",
+							"//     pm.expect(jsonResponse.id).to.be.a(\"number\")\r",
+							"//     pm.expect(jsonResponse.name).to.be.a(\"string\")\r",
+							"//     pm.expect(jsonResponse.author).to.be.a(\"string\")\r",
+							"//     pm.expect(jsonResponse.type).to.be.a(\"string\")\r",
+							"//     pm.expect(jsonResponse.price).to.be.a(\"number\")\r",
+							"//     pm.expect(jsonResponse[\"current-stock\"]).to.be.a(\"number\")\r",
+							"//     pm.expect(jsonResponse.available).to.be.a(\"boolean\")\r",
+							"// })\r",
+							"\r",
+							"// // Counting the number of properties in the object\r",
+							"// let numberOfProperties = Object.keys(jsonResponse).length;\r",
+							"\r",
+							"// // Verify if the result is unique and one\r",
+							"// pm.test(\"Test if the response length is one\", () => {\r",
+							"//     pm.expect(numberOfProperties).to.equal(7)\r",
+							"// })\r",
+							"\r",
+							"\r",
+							"\r",
+							"\r",
+							"\r",
+							"\r",
+							"\r",
+							""
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				}
+			],
+			"request": {
+				"method": "PATCH",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{baseUrl}}/orders/:orderId",
+					"host": [
+						"{{baseUrl}}"
+					],
+					"path": [
+						"orders",
+						":orderId"
+					],
+					"variable": [
+						{
+							"key": "orderId",
+							"value": "{{orderId}}"
+						}
+					]
+				}
+			},
+			"response": []
+		}
+	],
+	"auth": {
+		"type": "bearer",
+		"bearer": [
+			{
+				"key": "token",
+				"value": "{{accessTokenCollectionVar}}",
+				"type": "string"
+			}
+		]
+	},
+	"event": [
+		{
+			"listen": "prerequest",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		},
+		{
+			"listen": "test",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					"jsonResponse = pm.response.json()\r",
+					""
+				]
+			}
+		}
+	],
+	"variable": [
+		{
+			"key": "baseUrl",
+			"value": "https://simple-books-api.glitch.me"
+		},
+		{
+			"key": "accessToken",
+			"value": "",
+			"type": "string"
+		},
+		{
+			"key": "accessTokenCollectionVar",
+			"value": ""
+		}
+	]
+}
